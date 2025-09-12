@@ -1,5 +1,3 @@
-// src/components/PollResult.jsx
-
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -31,8 +29,13 @@ const PollResult = () => {
   };
 
   return (
-    <div className="h-64">
-      <Pie data={data} options={options} />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-white p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 flex flex-col items-center">
+        <h2 className="text-2xl font-bold mb-6 text-blue-700 text-center">Poll Results</h2>
+        <div className="w-full h-64 md:h-80">
+          <Pie data={data} options={options} />
+        </div>
+      </div>
     </div>
   );
 };

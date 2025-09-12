@@ -28,7 +28,7 @@ function AdminRegistrationForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-cover bg-center background-color: lightblue">
+    <div className="h-screen w-screen bg-gradient-to-b from-blue-200 to-white flex flex-col items-center justify-center">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-80 space-y-4">
         <h2 className="text-2xl font-bold text-center">Admin Registration</h2>
 
@@ -63,22 +63,6 @@ function AdminRegistrationForm() {
           </select>
         </div>
 
-        {/* Role */}
-        <div>
-          <label className="block font-semibold mb-1">Role</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-          >
-            <option value="Select Role">Select Role</option>
-            <option>Student</option>
-            <option>Employee</option>
-            <option>Other</option>
-          </select>
-        </div>
 
         {/* Email */}
         <div>

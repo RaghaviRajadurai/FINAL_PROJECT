@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Add this import
 
 export default function HomePage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-100">
       <div className="w-[450px] rounded-3xl shadow-2xl bg-gradient-to-b from-white to-blue-100 overflow-hidden">
@@ -42,11 +44,12 @@ export default function HomePage() {
 
         {/* Bottom Arrow Button */}
         <div className="flex justify-end p-6">
-          <button className="bg-black text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg hover:bg-gray-800 transition">
-            ➡️
+          <button className="bg-white text-black w-14 h-14 flex items-center justify-center rounded-full shadow-lg hover:bg-gray-800 transition"
+           onClick={() => navigate("/home")}>
+            ➔
 
           </button>
-        </div>
+        </div>  
       </div>
     </div>
   );
