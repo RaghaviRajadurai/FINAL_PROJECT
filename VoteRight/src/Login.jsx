@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import apiClient from "./apiclient";
 
 export default function UserLogin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -12,13 +18,50 @@ export default function UserLogin() {
   const type = params.get("type") || "user";
   const isAdmin = type === "admin";
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isAdmin) {
-      navigate("/admin-dashboard");
-    } else {
-      navigate("/user-poll");
+    setLoading(true);
+
+    try {
+      const response = await apiClient.post("/login", {
+        email: formData.email,
+        password: formData.password
+      });
+
+      const { token, user } = response.data;
+
+      // Store token and user data
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Check if user role matches expected type
+      if (isAdmin && user.role !== "Admin") {
+        alert("Access denied. Admin credentials required.");
+        return;
+      }
+
+      if (!isAdmin && user.role !== "User") {
+        alert("Access denied. User credentials required.");
+        return;
+      }
+
+      // Navigate based on role
+      if (user.role === "Admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/user-poll");
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || "Login failed. Please try again.";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,8 +80,12 @@ export default function UserLogin() {
             </label>
             <input
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder={isAdmin ? "admin@domain.com" : "example@gmail.com"}
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400"
+              required
             />
           </div>
 
@@ -48,8 +95,12 @@ export default function UserLogin() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Password"
                 className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400 pr-10"
+                required
               />
               <button
                 type="button"
@@ -64,9 +115,10 @@ export default function UserLogin() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-sky-600 text-white py-3 rounded-lg hover:bg-sky-700 transition"
+            disabled={loading}
+            className="w-full bg-sky-600 text-white py-3 rounded-lg hover:bg-sky-700 transition disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

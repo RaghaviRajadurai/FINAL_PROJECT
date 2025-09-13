@@ -1,20 +1,64 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import apiClient from "./apiclient";
 
 const RegistrationForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    gender: "",
+    role: "",
+    email: "",
+    password: "",
+    reEnterPassword: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await apiClient.post("/users", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        reEnterPassword: formData.reEnterPassword,
+        gender: formData.gender,
+        role: "User" // Always set as User for user registration
+      });
+
+      alert("Registration successful! Please login.");
+      navigate("/login?type=user");
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || "Registration failed. Please try again.";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-blue-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">User Registration</h2>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
             <label className="block font-medium mb-1">Name</label>
             <input
               type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               placeholder="Enter your name"
               className="w-full border border-gray-300 p-2 rounded-md"
               required
@@ -24,12 +68,18 @@ const RegistrationForm = () => {
           {/* Gender */}
           <div>
             <label className="block font-medium mb-1">Gender</label>
-            <input
-              type="text"
-              placeholder="Enter your gender"
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded-md"
               required
-            />
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
           {/* Role */}
@@ -37,6 +87,9 @@ const RegistrationForm = () => {
             <label className="block font-medium mb-1">Role</label>
             <input
               type="text"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
               placeholder="Enter your role"
               className="w-full border border-gray-300 p-2 rounded-md"
               required
@@ -48,6 +101,9 @@ const RegistrationForm = () => {
             <label className="block font-medium mb-1">Email</label>
             <input
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="example@gmail.com"
               className="w-full border border-gray-300 p-2 rounded-md"
               required
@@ -60,6 +116,9 @@ const RegistrationForm = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter password"
                 className="w-full border border-gray-300 p-2 rounded-md pr-10"
                 required
@@ -69,7 +128,6 @@ const RegistrationForm = () => {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 cursor-pointer"
               >
                 {showPassword ? (
-                  // Eye-off icon
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -79,7 +137,6 @@ const RegistrationForm = () => {
                       01-2.12-.88M3 3l18 18" />
                   </svg>
                 ) : (
-                  // Eye icon
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -99,6 +156,9 @@ const RegistrationForm = () => {
             <div className="relative">
               <input
                 type={showRePassword ? "text" : "password"}
+                name="reEnterPassword"
+                value={formData.reEnterPassword}
+                onChange={handleChange}
                 placeholder="Re-enter password"
                 className="w-full border border-gray-300 p-2 rounded-md pr-10"
                 required
@@ -108,7 +168,6 @@ const RegistrationForm = () => {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 cursor-pointer"
               >
                 {showRePassword ? (
-                  // Eye-off icon
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -118,7 +177,6 @@ const RegistrationForm = () => {
                       01-2.12-.88M3 3l18 18" />
                   </svg>
                 ) : (
-                  // Eye icon
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -135,9 +193,10 @@ const RegistrationForm = () => {
           {/* Register Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 disabled:opacity-50"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
       </div>

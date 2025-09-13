@@ -3,8 +3,18 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="h-screen w-screen bg-gradient-to-b from-blue-200 to-white flex flex-col items-center justify-center">
+    <div className="h-screen w-screen bg-gradient-to-b from-blue-200 to-white flex flex-col items-center justify-center relative">
+      
+      {/* Back Icon */}
+      <button
+        onClick={() => navigate(-1)} // go to previous page
+        className="absolute top-6 left-6 text-3xl text-gray-700 hover:text-black"
+      >
+        &#8592; {/* Left arrow (<-) */}
+      </button>
+
       <div className="bg-white rounded-3xl shadow-2xl px-12 py-10 flex flex-col items-center w-[400px]">
         {/* Title Section */}
         <div className="text-center mb-10">

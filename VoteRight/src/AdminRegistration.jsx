@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import apiClient from './apiclient';
 
 function AdminRegistrationForm() {
   const [formData, setFormData] = useState({
@@ -9,8 +11,9 @@ function AdminRegistrationForm() {
     confirmPassword: '',
     mailExtension: ''
   });
-
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,10 +24,28 @@ function AdminRegistrationForm() {
     setShowPassword(prev => !prev);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic
-    console.log(formData);
+    setLoading(true);
+
+    try {
+      const response = await apiClient.post('/users', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        reEnterPassword: formData.confirmPassword,
+        gender: formData.gender,
+        role: 'Admin'
+      });
+
+      alert('Admin registration successful! Please login.');
+      navigate('/login?type=admin');
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,12 +78,11 @@ function AdminRegistrationForm() {
             required
           >
             <option value="">Select Gender</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
           </select>
         </div>
-
 
         {/* Email */}
         <div>
@@ -95,7 +115,7 @@ function AdminRegistrationForm() {
               onClick={togglePasswordVisibility}
               className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
             >
-              
+              {showPassword ? "👁️" : "🙈"}
             </span>
           </div>
         </div>
@@ -113,7 +133,6 @@ function AdminRegistrationForm() {
               placeholder="Password"
               required
             />
-
           </div>
         </div>
 
@@ -132,9 +151,10 @@ function AdminRegistrationForm() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200 disabled:opacity-50"
         >
-          Register
+          {loading ? "Registering..." : "Register"}
         </button>
       </form>
     </div>
